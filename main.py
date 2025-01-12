@@ -1,6 +1,7 @@
 import re
 import os
 import string
+import argparse
 from next_word import wordle_guess, refine_first_word_list, generate_first_word
 from submit import submit_word
 from last_resort import process_result, generate_word_from_pools
@@ -22,22 +23,21 @@ def main(game_type="daily", seed=None, length=5):
 
     # Load the word list from the GitHub URL
     word_list_url = "https://raw.githubusercontent.com/dwyl/english-words/master/words.txt"
-    length = 5  # Change this to the desired word length
     word_list = load_word_list(word_list_url, length)
 
     # Generate the first word
     refined_list = refine_first_word_list(word_list)
 
     if refined_list:
-        i=0
-        while i<len(refined_list): 
-            first_word = refined_list[i] 
+        i = 0
+        while i < len(refined_list):
+            first_word = refined_list[i]
             if len(first_word) == len(set(first_word)):
                 break
             else:
-                i+=1
+                i += 1
     else:
-        first_word=generate_first_word(length)
+        first_word = generate_first_word(length)
     print("First word:", first_word)
 
     # Submit the first word and get results
@@ -69,5 +69,13 @@ def main(game_type="daily", seed=None, length=5):
             print(f"The answer is: {next_word}")
             break
 
-# Run the main function with specified parameters
-main(game_type="random", seed=34, length=28)
+# Entry point to parse command-line arguments and run the main function
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Wordle Solver")
+    parser.add_argument("--game_type", type=str, default="daily", help="Type of Wordle game (daily or random)")
+    parser.add_argument("--seed", type=int, default=None, help="Seed for random Wordle game")
+    parser.add_argument("--length", type=int, default=5, help="Length of the Wordle word")
+    
+    args = parser.parse_args()
+    
+    main(game_type=args.game_type, seed=args.seed, length=args.length)
